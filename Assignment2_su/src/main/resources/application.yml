@@ -1,0 +1,13 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+    location: application-local.yml
+
+---
+spring:
+  config:
+    activate:
+      on-profile: real
+    location: application-real.yml
+

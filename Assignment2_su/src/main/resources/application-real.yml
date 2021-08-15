@@ -1,0 +1,7 @@
+spring:
+  datasource:
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      jdbc-url: jdbc:mysql://localhost:1234/real_db?serverTimezone=UTC&characterEncoding=UTF-8
+      username: root
+      password: 6203
