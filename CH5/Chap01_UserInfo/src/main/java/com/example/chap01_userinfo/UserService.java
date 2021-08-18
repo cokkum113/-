@@ -43,13 +43,17 @@ public class UserService {
         }
     }
 
+    public static final int MIN_LOGOUT_FOR_SILVER = 50;
+    public static final int MIN_RECOMMEND_FOR_GOLD = 30;
+
+
     private boolean canUpgradeLevel(User user) {
         Level currentLevel = user.getLevel();
         switch (currentLevel) {
             case BASIC:
-                return (user.getLogin() >= 50);
+                return (user.getLogin() >= MIN_LOGOUT_FOR_SILVER);
             case SILVER:
-                return (user.getLogin() >= 30);
+                return (user.getLogin() >= MIN_RECOMMEND_FOR_GOLD);
             case GOLD:
                 return false;
             default:
