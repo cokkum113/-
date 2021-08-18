@@ -1,7 +1,6 @@
 package com.example.chap01_userinfo;
 
-public class User
-{
+public class User {
     private String id;
     private String name;
     private String password;
@@ -34,8 +33,7 @@ public class User
         this.recommend = recommend;
     }
 
-    public User(String id, String name, String password, Level level, int login, int recommend)
-    {
+    public User(String id, String name, String password, Level level, int login, int recommend) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -44,38 +42,41 @@ public class User
         this.recommend = recommend;
     }
 
-    public User()
-    {
+    public User() {
 
     }
 
-    public String getId()
-    {
+    public String getId() {
         return id;
     }
 
-    public void setId(String id)
-    {
+    public void setId(String id) {
         this.id = id;
     }
 
-    public String getName()
-    {
+    public String getName() {
         return name;
     }
 
-    public void setName(String name)
-    {
+    public void setName(String name) {
         this.name = name;
     }
 
-    public String getPassword()
-    {
+    public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password)
-    {
+    public void setPassword(String password) {
         this.password = password;
     }
+
+    public void upgradeLevel() {
+        Level nextLevel = this.level.nextLevel();
+        if (nextLevel == null) {
+            throw new IllegalStateException(this.level + "은 업그레이드가 불가능합니다");
+        } else {
+            this.level = nextLevel;
+        }
+    }
+
 }
