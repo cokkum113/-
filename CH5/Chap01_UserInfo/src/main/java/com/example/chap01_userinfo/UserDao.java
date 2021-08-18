@@ -9,7 +9,7 @@ public interface UserDao {
 
     List<User> getAll();
 
-    void deleteAll();
+    public void deleteAll();
 
     int getCount();
 

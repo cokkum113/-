@@ -3,7 +3,7 @@ package com.example.chap01_userinfo;
 import java.util.List;
 
 public class UserService {
-    UserDao userDao;
+   UserDao userDao;
 
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
