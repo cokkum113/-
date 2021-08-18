@@ -20,7 +20,6 @@ import java.sql.SQLException;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
 @RunWith(SpringRunner.class)
@@ -40,9 +39,9 @@ public class UserDaoTest1 {
     public void setUp() {
         DataSource dataSource = new SingleConnectionDataSource(
                 "jdbc:mysql://localhost:1234/springbook", "root", "6203", true);
-        this.user1 = new User("gyumee", "박성철", "springno1");
-        this.user2 = new User("leegw700", "이길원", "springno2");
-        this.user3 = new User("bumjin", "박범진", "springno3");
+        this.user1 = new User("gyumee", "박성철", "springno1", Level.BASIC, 1, 0);
+        this.user2 = new User("leegw700", "이길원", "springno2", Level.SILVER, 55,10);
+        this.user3 = new User("bumjin", "박범진", "springno3", Level.GOLD, 100, 40);
 
     }
 
@@ -122,6 +121,9 @@ public class UserDaoTest1 {
         assertThat(user1.getId(), is(user2.getId()));
         assertThat(user1.getName(), is(user2.getName()));
         assertThat(user1.getPassword(), is(user2.getPassword()));
+        assertThat(user1.getLevel(), is(user2.getLevel()));
+        assertThat(user1.getLogin(), is(user2.getLogin()));
+        assertThat(user1.getRecommend(), is(user2.getRecommend()));
     }
 
 
