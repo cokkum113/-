@@ -12,6 +12,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(locations = "/application.xml")
@@ -25,7 +27,7 @@ public class UserServiceTest {
 
     @Test
     public void bean() {
-        Assertions.assertThat(this.userService).isNotNull();
+        assertThat(this.userService).isNotNull();
     }
 
     List<User> users;
@@ -43,6 +45,7 @@ public class UserServiceTest {
     }
 
 
+    /*
     @Test
     public void upgradeLevels() {
         userDao.deleteAll();
@@ -65,6 +68,32 @@ public class UserServiceTest {
         Assertions.assertThat(userUpdate.getLevel()).isEqualTo(expectedLevel);
     }
 
+     */
+
+    @Test
+    public void upgradeLevels() {
+        userDao.deleteAll();
+        for (User user : users) {
+            userDao.add(user);
+        }
+
+        userService.upgradeLevels();
+
+        checkLevelUpgraded(users.get(0), false);
+        checkLevelUpgraded(users.get(1), true);
+        checkLevelUpgraded(users.get(2), true);
+        checkLevelUpgraded(users.get(3), true);
+        checkLevelUpgraded(users.get(4), false);
+    }
+
+    private void checkLevelUpgraded(User user, boolean upgraded) {
+        User userUpdate = userDao.get(user.getId());
+        if (upgraded) {
+            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel().nextLevel());
+        } else {
+            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
+        }
+    }
 
 
 
@@ -84,8 +113,8 @@ public class UserServiceTest {
         User userWithLevelRead = userDao.get(userWithLevel.getId());
         User userWithoutLevelRead = userDao.get(userWithoutLevel.getId());
 
-        Assertions.assertThat(userWithLevelRead.getLevel()).isEqualTo(userWithLevel.getLevel());
-        Assertions.assertThat(userWithoutLevelRead.getLevel()).isEqualTo(userWithoutLevel.getLevel());
+        assertThat(userWithLevelRead.getLevel()).isEqualTo(userWithLevel.getLevel());
+        assertThat(userWithoutLevelRead.getLevel()).isEqualTo(userWithoutLevel.getLevel());
     }
 
 }
