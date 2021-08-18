@@ -42,6 +42,7 @@ public class UserServiceTest {
         );
     }
 
+
     @Test
     public void upgradeLevels() {
         userDao.deleteAll();
@@ -57,14 +58,16 @@ public class UserServiceTest {
         checkLevel(users.get(3), Level.GOLD);
         checkLevel(users.get(4), Level.GOLD);
 
-
-
     }
     private void checkLevel(User user, Level expectedLevel)
     {
         User userUpdate = userDao.get(user.getId());
         Assertions.assertThat(userUpdate.getLevel()).isEqualTo(expectedLevel);
     }
+
+
+
+
 
     @Test
     public void add() {

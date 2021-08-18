@@ -9,6 +9,7 @@ public class UserService {
         this.userDao = userDao;
     }
 
+    /*
     public void upgradeLevels(){
         List<User> users = userDao.getAll();
         for (User user : users) {
@@ -29,6 +30,39 @@ public class UserService {
                 userDao.update(user);
             }
         }
+    }
+
+     */
+
+    public void upgradeLevels() {
+        List<User> users = userDao.getAll();
+        for (User user : users) {
+            if (canUpgradeLevel(user)) {
+                upgradeLevel(user);
+            }
+        }
+    }
+
+    private boolean canUpgradeLevel(User user) {
+        Level currentLevel = user.getLevel();
+        switch (currentLevel) {
+            case BASIC:
+                return (user.getLogin() >= 50);
+            case SILVER:
+                return (user.getLogin() >= 30);
+            case GOLD:
+                return false;
+            default:
+                throw new IllegalArgumentException("Unknown Level : " + currentLevel);
+                //현재 로직에서 다룰 수 없는 레벨이 주어지면 예외를 발생시킨다.
+                //새로운 레벨이 추가되고 로직을 수정하지 않으면 에러가 나서 확인할 수 있다.
+        }
+    }
+
+    private void upgradeLevel(User user) {
+        if(user.getLevel() == Level.BASIC) user.setLevel(Level.SILVER);
+        else if(user.getLevel() == Level.SILVER) user.setLevel(Level.GOLD);
+        userDao.update(user);
     }
 
     public void add(User user) {
