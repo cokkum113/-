@@ -43,7 +43,7 @@ public class UserDaoJdbc implements UserDao {
                     user.getId(),
                     user.getName(),
                     user.getPassword(),
-                    user.getLevel(),
+                    user.getLevel().intValue(),
                     user.getLogin(),
                     user.getRecommend());
 
