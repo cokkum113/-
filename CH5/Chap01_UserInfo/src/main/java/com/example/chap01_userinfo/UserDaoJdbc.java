@@ -1,9 +1,7 @@
 package com.example.chap01_userinfo;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
 import java.sql.ResultSet;
@@ -31,6 +29,7 @@ public class UserDaoJdbc implements UserDao {
             user.setLevel(Level.valueOf(rs.getInt("level")));
             user.setLogin(rs.getInt("login"));
             user.setRecommend(rs.getInt("recommend"));
+            user.setEmail(rs.getString("email"));
             return user;
         }
     };
@@ -39,13 +38,14 @@ public class UserDaoJdbc implements UserDao {
     public void add(final User user) throws DuplicateUserIdException   {
         try {
             //JdbcTemplate 이용해서 User 를 add
-            this.jdbcTemplate.update("insert into users(id, name, password, level, login, recommend) values(?,?,?,?,?,?)",
+            this.jdbcTemplate.update("insert into users(id, name, password, level, login, recommend) values(?,?,?,?,?,?,?)",
                     user.getId(),
                     user.getName(),
                     user.getPassword(),
                     user.getLevel().intValue(),
                     user.getLogin(),
-                    user.getRecommend());
+                    user.getRecommend(),
+                    user.getEmail());
 
         } catch (DuplicateUserIdException e) {
             //로그를 남기는 등의 작업
