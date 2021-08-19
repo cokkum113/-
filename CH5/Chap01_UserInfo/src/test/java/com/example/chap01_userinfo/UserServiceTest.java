@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import javax.sql.DataSource;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -27,6 +29,9 @@ public class UserServiceTest {
 
     @Autowired
     UserDao userDao;
+
+    @Autowired
+    DataSource dataSource;
 
 
     @Test
@@ -76,12 +81,14 @@ public class UserServiceTest {
      */
 
     @Test
-    public void upgradeLevels() {
+    public void upgradeLevels() throws SQLException {
         userDao.deleteAll();
+
         for (User user : users) {
             userDao.add(user);
         }
 
+        userService.setDataSource(dataSource);
         userService.upgradeLevels();
 
         checkLevelUpgraded(users.get(0), false);
@@ -124,6 +131,7 @@ public class UserServiceTest {
     public void upgradeAllOrNothing() {
         UserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
+        testUserService.setDataSource(this.dataSource);
 
         userDao.deleteAll();
         for (User user : users) {
@@ -133,7 +141,7 @@ public class UserServiceTest {
         try {
             testUserService.upgradeLevels();
             fail("TestUserServiceException expected");
-        } catch (TestUserService.TestUserServiceException e) {
+        } catch (TestUserService.TestUserServiceException | SQLException e) {
         }
 
         checkLevelUpgraded(users.get(1), false);

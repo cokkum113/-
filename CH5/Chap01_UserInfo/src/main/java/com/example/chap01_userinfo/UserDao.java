@@ -4,9 +4,9 @@ import java.sql.Connection;
 import java.util.List;
 
 public interface UserDao {
-    void add(Connection c, User user);
+    void add(User user);
 
-    User get(Connection c, String id);
+    User get(String id);
 
     List<User> getAll();
 
@@ -14,7 +14,7 @@ public interface UserDao {
 
     int getCount();
 
-    public void update(Connection c, User user1);
+    public void update(User user1);
 
 
 }

@@ -1,17 +1,19 @@
 package com.example.chap01_userinfo;
 
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 public class UserService {
     UserDao userDao;
-    private DataSource dataSource;
+    DataSource dataSource;
 
-    private void setDataSource(DataSource dataSource) {
+    void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -45,7 +47,7 @@ public class UserService {
 
      */
 
-    public void upgradeLevels() throws Exception {
+    public void upgradeLevels() throws SQLException {
         TransactionSynchronizationManager.initSynchronization();
         //트랜잭션 동기화 관리자를 이용해 동기화 작업을 초기화한다
         Connection c = DataSourceUtils.getConnection(dataSource);
@@ -105,4 +107,7 @@ public class UserService {
             }
             userDao.add(user);
         }
+
+    public void setDataSource(DriverManagerDataSource dataSource) {
     }
+}
