@@ -1,6 +1,8 @@
 package com.example.chap01_userinfo;
 
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -52,7 +54,7 @@ public class UserService {
 
      */
 
-    public void upgradeLevels()  {
+    public void upgradeLevels() {
 //        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
         //JDBC 트랜잭션 추상오브젝트 생성
         TransactionStatus status = this.transactionManager.getTransaction(new DefaultTransactionDefinition());
@@ -66,46 +68,58 @@ public class UserService {
             this.transactionManager.commit(status);
         } catch (RuntimeException e) {
             this.transactionManager.rollback(status);
-            throw  e;
+            throw e;
         }
 
 
+    }
+
+
+    public static final int MIN_LOGOUT_FOR_SILVER = 50;
+    public static final int MIN_RECOMMEND_FOR_GOLD = 30;
+
+
+    private boolean canUpgradeLevel(User user) {
+        Level currentLevel = user.getLevel();
+        switch (currentLevel) {
+            case BASIC:
+                return (user.getLogin() >= MIN_LOGOUT_FOR_SILVER);
+            case SILVER:
+                return (user.getLogin() >= MIN_RECOMMEND_FOR_GOLD);
+            case GOLD:
+                return false;
+            default:
+                throw new IllegalArgumentException("Unknown Level : " + currentLevel);
+                //현재 로직에서 다룰 수 없는 레벨이 주어지면 예외를 발생시킨다.
+                //새로운 레벨이 추가되고 로직을 수정하지 않으면 에러가 나서 확인할 수 있다.
         }
+    }
+
+    protected void upgradeLevel(User user) {
+        user.upgradeLevel();
+        userDao.update(user);
+        sendUpgradeEMail(user);
+    }
+
+    private void sendUpgradeEMail(User user) {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost("mail.sever.com");
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(user.getEmail());
+        mailMessage.setFrom("useradmin@ksug.org");
+        mailMessage.setSubject("Upgrade 안내");
+        mailMessage.setText("사용자님의 등급이 " + user.getLevel().name());
+
+        mailSender.send(mailMessage);
+    }
 
 
-        public static final int MIN_LOGOUT_FOR_SILVER = 50;
-        public static final int MIN_RECOMMEND_FOR_GOLD = 30;
-
-
-        private boolean canUpgradeLevel (User user){
-            Level currentLevel = user.getLevel();
-            switch (currentLevel) {
-                case BASIC:
-                    return (user.getLogin() >= MIN_LOGOUT_FOR_SILVER);
-                case SILVER:
-                    return (user.getLogin() >= MIN_RECOMMEND_FOR_GOLD);
-                case GOLD:
-                    return false;
-                default:
-                    throw new IllegalArgumentException("Unknown Level : " + currentLevel);
-                    //현재 로직에서 다룰 수 없는 레벨이 주어지면 예외를 발생시킨다.
-                    //새로운 레벨이 추가되고 로직을 수정하지 않으면 에러가 나서 확인할 수 있다.
-            }
+    public void add(User user) {
+        if (user.getLevel() == null) {
+            user.setLevel(Level.BASIC);
         }
-
-        protected void upgradeLevel (User user){
-            user.upgradeLevel();
-            userDao.update(user);
-        }
-
-
-
-        public void add (User user){
-            if (user.getLevel() == null) {
-                user.setLevel(Level.BASIC);
-            }
-            userDao.add(user);
-        }
+        userDao.add(user);
+    }
 
     public void setDataSource(DriverManagerDataSource dataSource) {
     }
