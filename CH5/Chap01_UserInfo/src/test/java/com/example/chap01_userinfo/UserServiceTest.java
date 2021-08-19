@@ -1,13 +1,14 @@
 package com.example.chap01_userinfo;
 
 
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
@@ -16,7 +17,6 @@ import java.util.List;
 
 import static com.example.chap01_userinfo.UserService.MIN_LOGOUT_FOR_SILVER;
 import static com.example.chap01_userinfo.UserService.MIN_RECOMMEND_FOR_GOLD;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -33,6 +33,8 @@ public class UserServiceTest {
     @Autowired
     DataSource dataSource;
 
+    @Autowired
+    PlatformTransactionManager transactionManager;
 
     @Test
     public void bean() {
@@ -130,7 +132,8 @@ public class UserServiceTest {
     @Test
     public void upgradeAllOrNothing() {
         UserService testUserService = new TestUserService(users.get(3).getId());
-        testUserService.setUserDao(this.userDao);
+        testUserService.setUserDao(userDao);
+        testUserService.setTransactionManager(transactionManager);
         testUserService.setDataSource(this.dataSource);
 
         userDao.deleteAll();

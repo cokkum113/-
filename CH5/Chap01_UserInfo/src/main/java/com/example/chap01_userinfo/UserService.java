@@ -1,21 +1,22 @@
 package com.example.chap01_userinfo;
 
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
 import java.util.List;
 
 public class UserService {
-    UserDao userDao;
-    DataSource dataSource;
+    private UserDao userDao;
+    private DataSource dataSource;
+    private PlatformTransactionManager transactionManager;
+
+    void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
+    }
+
 
     void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -52,9 +53,9 @@ public class UserService {
      */
 
     public void upgradeLevels()  {
-        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+//        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
         //JDBC 트랜잭션 추상오브젝트 생성
-        TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+        TransactionStatus status = this.transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
             List<User> users = userDao.getAll();
             for (User user : users) {
@@ -62,9 +63,9 @@ public class UserService {
                     upgradeLevel(user);
                 }
             }
-            transactionManager.commit(status);
+            this.transactionManager.commit(status);
         } catch (RuntimeException e) {
-            transactionManager.rollback(status);
+            this.transactionManager.rollback(status);
             throw  e;
         }
 
@@ -106,4 +107,6 @@ public class UserService {
 
     public void setDataSource(DriverManagerDataSource dataSource) {
     }
+
+
 }
