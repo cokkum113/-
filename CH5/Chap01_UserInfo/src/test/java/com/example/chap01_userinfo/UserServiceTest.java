@@ -141,7 +141,7 @@ public class UserServiceTest {
         try {
             testUserService.upgradeLevels();
             fail("TestUserServiceException expected");
-        } catch (TestUserService.TestUserServiceException | SQLException e) {
+        } catch (TestUserService.TestUserServiceException e) {
         }
 
         checkLevelUpgraded(users.get(1), false);

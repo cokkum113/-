@@ -1,7 +1,11 @@
 package com.example.chap01_userinfo;
 
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
@@ -47,34 +51,26 @@ public class UserService {
 
      */
 
-    public void upgradeLevels() throws SQLException {
-        TransactionSynchronizationManager.initSynchronization();
-        //트랜잭션 동기화 관리자를 이용해 동기화 작업을 초기화한다
-        Connection c = DataSourceUtils.getConnection(dataSource);
-        c.setAutoCommit(false);
-        //DB 커넥션을 생성하고 트랜잭션을 시작한다. 이후의 DAO 작업은 모두 여기서 시작한 트랜잭션 안에서 진행된다.
-        //DB 커넥션 생성과 동기화를 함께해주는 유틸리티 매소드
-
+    public void upgradeLevels()  {
+        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
+        //JDBC 트랜잭션 추상오브젝트 생성
+        TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
             List<User> users = userDao.getAll();
             for (User user : users) {
                 if (canUpgradeLevel(user)) {
                     upgradeLevel(user);
                 }
-
             }
-            c.commit();
-        } catch (Exception e) {
-            c.rollback();
-            throw e;
-        }finally {
-            DataSourceUtils.releaseConnection(c, dataSource);
-            //스프링 유틸리티 메소드를 이용해 DB커넥션을 안전하게 닫는다.
-            TransactionSynchronizationManager.unbindResource(this.dataSource);
-            TransactionSynchronizationManager.clearSynchronization();
-            //동기화 작업 종료및 정리
+            transactionManager.commit(status);
+        } catch (RuntimeException e) {
+            transactionManager.rollback(status);
+            throw  e;
         }
+
+
         }
+
 
         public static final int MIN_LOGOUT_FOR_SILVER = 50;
         public static final int MIN_RECOMMEND_FOR_GOLD = 30;
