@@ -3,7 +3,7 @@ package com.example.chap01_userinfo;
 public class TestUserService extends UserService {
     private String id;
 
-    private TestUserService(String id) {
+    TestUserService(String id) {
         this.id = id;
     }
 

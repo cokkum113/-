@@ -122,7 +122,7 @@ public class UserServiceTest {
 
     @Test
     public void upgradeAllOrNothing() {
-        UserService testUserService = new UserServiceTest(users.get(3).getId());
+        UserService testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(this.userDao);
 
         userDao.deleteAll();
