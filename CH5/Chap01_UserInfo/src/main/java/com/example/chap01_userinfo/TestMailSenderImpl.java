@@ -1,11 +1,10 @@
 package com.example.chap01_userinfo;
 
-
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 
-public class DummyMailSender implements MailSender {
+public class TestMailSenderImpl implements MailSender {
 
     @Override
     public void send(SimpleMailMessage simpleMessage) throws MailException {

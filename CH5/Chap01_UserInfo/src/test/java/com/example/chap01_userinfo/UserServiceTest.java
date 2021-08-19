@@ -5,12 +5,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,6 +29,9 @@ import static org.assertj.core.api.Assertions.fail;
 public class UserServiceTest {
     @Autowired
     UserService userService;
+
+    @Autowired
+    MailSender mailSender;
 
     @Autowired
     UserDao userDao;
@@ -81,6 +88,7 @@ public class UserServiceTest {
 
      */
 
+    /*
     @Test
     public void upgradeLevels() throws SQLException {
         userDao.deleteAll();
@@ -99,6 +107,8 @@ public class UserServiceTest {
         checkLevelUpgraded(users.get(4), false);
     }
 
+
+     */
     private void checkLevelUpgraded(User user, boolean upgraded) {
         User userUpdate = userDao.get(user.getId());
         if (upgraded) {
@@ -107,6 +117,8 @@ public class UserServiceTest {
             assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
         }
     }
+
+
 
 
     @Test
@@ -134,6 +146,7 @@ public class UserServiceTest {
         testUserService.setUserDao(userDao);
         testUserService.setTransactionManager(transactionManager);
         testUserService.setDataSource(this.dataSource);
+        testUserService.setMailSender(mailSender);
 
         userDao.deleteAll();
         for (User user : users) {
@@ -147,6 +160,56 @@ public class UserServiceTest {
         }
 
         checkLevelUpgraded(users.get(1), false);
+
+    }
+
+    static class MockMailSender implements MailSender {
+        private List<String> requests = new ArrayList<String>();
+
+
+        public List<String> getRequests() {
+            return requests;
+        }
+
+
+        @Override
+        public void send(SimpleMailMessage simpleMessage) throws MailException {
+            requests.add(simpleMessage.getTo()[0]);
+
+            //전송 요청을 받은 이메일 주소를 저장해둔다. 간단하게 첫번째 수신자 메일 주소만 저장했다.
+        }
+
+        @Override
+        public void send(SimpleMailMessage... simpleMessages) throws MailException {
+
+        }
+
+    }
+
+    @Test
+    @DirtiesContext //컨텍스트의 DI설정을 변경하라는 테스트라는 것을 알려줌
+    public void upgradeLevels() throws Exception {
+        userDao.deleteAll();
+        for (User user : users) {
+            userDao.add(user);
+        }
+        MockMailSender mockMailSender = new MockMailSender();
+        userService.setMailSender(mockMailSender);
+
+        userService.upgradeLevels();
+
+        checkLevelUpgraded(users.get(0), false);
+        checkLevelUpgraded(users.get(1), true);
+        checkLevelUpgraded(users.get(2), true);
+        checkLevelUpgraded(users.get(3), true);
+        checkLevelUpgraded(users.get(4), false);
+
+        List<String> request = mockMailSender.getRequests();
+        assertThat(request.size()).isEqualTo(2);
+        assertThat(request.get(0)).isEqualTo(users.get(1).getEmail());
+        assertThat(request.get(1)).isEqualTo(users.get(3).getEmail());
+
+
 
     }
 

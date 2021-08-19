@@ -8,7 +8,7 @@ public class TestUserService extends UserService {
     }
 
     @Override
-    protected void upgradeLevel(User user) {
+    public void upgradeLevel(User user) {
         if (user.getId().equals(this.id)) {
             throw new TestUserServiceException();
         }

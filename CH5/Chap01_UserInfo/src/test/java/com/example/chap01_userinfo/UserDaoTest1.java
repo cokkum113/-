@@ -39,9 +39,9 @@ public class UserDaoTest1 {
     public void setUp() {
         DataSource dataSource = new SingleConnectionDataSource(
                 "jdbc:mysql://localhost:1234/springbook", "root", "6203", true);
-        this.user1 = new User("gyumee", "박성철", "springno1", Level.BASIC, 1, 0);
-        this.user2 = new User("leegw700", "이길원", "springno2", Level.SILVER, 55,10);
-        this.user3 = new User("bumjin", "박범진", "springno3", Level.GOLD, 100, 40);
+        this.user1 = new User("gyumee", "박성철", "springno1", Level.BASIC, 1, 0, "coco");
+        this.user2 = new User("leegw700", "이길원", "springno2", Level.SILVER, 55,10,"ysl");
+        this.user3 = new User("bumjin", "박범진", "springno3", Level.GOLD, 100, 40,"dior");
 
     }
 
