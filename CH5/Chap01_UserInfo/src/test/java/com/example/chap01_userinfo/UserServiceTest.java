@@ -16,6 +16,7 @@ import static com.example.chap01_userinfo.UserService.MIN_LOGOUT_FOR_SILVER;
 import static com.example.chap01_userinfo.UserService.MIN_RECOMMEND_FOR_GOLD;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 
 @RunWith(SpringRunner.class)
@@ -100,8 +101,6 @@ public class UserServiceTest {
     }
 
 
-
-
     @Test
     public void add() {
         userDao.deleteAll();
@@ -119,6 +118,26 @@ public class UserServiceTest {
 
         assertThat(userWithLevelRead.getLevel()).isEqualTo(userWithLevel.getLevel());
         assertThat(userWithoutLevelRead.getLevel()).isEqualTo(userWithoutLevel.getLevel());
+    }
+
+    @Test
+    public void upgradeAllOrNothing() {
+        UserService testUserService = new UserServiceTest(users.get(3).getId());
+        testUserService.setUserDao(this.userDao);
+
+        userDao.deleteAll();
+        for (User user : users) {
+            userDao.add(user);
+        }
+
+        try {
+            testUserService.upgradeLevels();
+            fail("TestUserServiceException expected");
+        } catch (TestUserService.TestUserServiceException e) {
+        }
+
+        checkLevelUpgraded(users.get(1), false);
+
     }
 
 }
