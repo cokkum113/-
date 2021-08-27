@@ -47,8 +47,6 @@ public class ReflectionTest {
         assertThat(proxiedHello.sayHi("Toby")).isEqualTo("HITOBY");
         assertThat(proxiedHello.sayThankYou("Toby")).isEqualTo("THANK YOUTOBY");
 
-
-
     }
 
 }
