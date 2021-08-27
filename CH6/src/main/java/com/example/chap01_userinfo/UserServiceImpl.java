@@ -6,28 +6,21 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 
 import javax.sql.DataSource;
 import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
-public class UserServiceImpl implements UserLevelUpgradePolicy {
+public class UserServiceImpl implements UserService {
     private UserDao userDao;
     private DataSource dataSource;
-    private PlatformTransactionManager transactionManager;
     private MailSender mailSender;
 
     public void setMailSender(MailSender mailSender) {
         this.mailSender = mailSender;
     }
 
-    void setTransactionManager(PlatformTransactionManager transactionManager) {
-        this.transactionManager = transactionManager;
-    }
 
 
     void setDataSource(DataSource dataSource) {
@@ -40,18 +33,6 @@ public class UserServiceImpl implements UserLevelUpgradePolicy {
 
 
     public void upgradeLevels() {
-        TransactionStatus status = this.transactionManager.getTransaction(new DefaultTransactionDefinition());
-        try {
-            upgradeLevelsInternal();
-            this.transactionManager.commit(status);
-
-        } catch (Exception e) {
-            this.transactionManager.rollback(status);
-            throw e;
-        }
-    }
-
-    private void upgradeLevelsInternal() {
         List<User> users = userDao.getAll();
         for (User user : users) {
             if (canUpgradeLevel(user)) {
@@ -59,7 +40,6 @@ public class UserServiceImpl implements UserLevelUpgradePolicy {
             }
         }
     }
-
 
     public static final int MIN_LOGOUT_FOR_SILVER = 50;
     public static final int MIN_RECOMMEND_FOR_GOLD = 30;
