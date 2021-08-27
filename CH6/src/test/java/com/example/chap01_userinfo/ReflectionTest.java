@@ -39,4 +39,16 @@ public class ReflectionTest {
 
     }
 
+    @Test
+    public void proxy() {
+        Hello proxiedHello = new HelloUppercase(new HelloTarget());
+        //프록시를 통해 타깃 오브젝트에 접근하도록 함.
+        assertThat(proxiedHello.sayHello("Toby")).isEqualTo("HELLOTOBY");
+        assertThat(proxiedHello.sayHi("Toby")).isEqualTo("HITOBY");
+        assertThat(proxiedHello.sayThankYou("Toby")).isEqualTo("THANK YOUTOBY");
+
+
+
+    }
+
 }
