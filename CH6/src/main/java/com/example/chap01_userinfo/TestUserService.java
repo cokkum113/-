@@ -1,6 +1,6 @@
 package com.example.chap01_userinfo;
 
-public class TestUserService extends UserService {
+public class TestUserService extends UserServiceImpl {
     private String id;
 
     TestUserService(String id) {

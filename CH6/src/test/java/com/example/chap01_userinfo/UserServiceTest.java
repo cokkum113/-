@@ -17,8 +17,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.example.chap01_userinfo.UserService.MIN_LOGOUT_FOR_SILVER;
-import static com.example.chap01_userinfo.UserService.MIN_RECOMMEND_FOR_GOLD;
+import static com.example.chap01_userinfo.UserServiceImpl.MIN_LOGOUT_FOR_SILVER;
+import static com.example.chap01_userinfo.UserServiceImpl.MIN_RECOMMEND_FOR_GOLD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.fail;
 @ContextConfiguration(locations = "/application.xml")
 public class UserServiceTest {
     @Autowired
-    UserService userService;
+    UserServiceImpl userService;
 
     @Autowired
     MailSender mailSender;
@@ -97,7 +97,7 @@ public class UserServiceTest {
 
     @Test
     public void upgradeAllOrNothing() {
-        UserService testUserService = new TestUserService(users.get(3).getId());
+        UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(userDao);
         testUserService.setTransactionManager(transactionManager);
         testUserService.setDataSource(this.dataSource);
