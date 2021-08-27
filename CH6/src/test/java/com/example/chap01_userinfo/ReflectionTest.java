@@ -30,4 +30,13 @@ public class ReflectionTest {
 
     }
 
+    @Test
+    public void simpleProxy() {
+        Hello hello = new HelloTarget();
+        assertThat(hello.sayHello("Toby")).isEqualTo("HelloToby");
+        assertThat(hello.sayHi("Toby")).isEqualTo("HiToby");
+        assertThat(hello.sayThankYou("Toby")).isEqualTo("Thank YouToby");
+
+    }
+
 }
