@@ -62,52 +62,8 @@ public class UserServiceTest {
     }
 
 
-    /*
-    @Test
-    public void upgradeLevels() {
-        userDao.deleteAll();
-        for (User user : users) {
-            userDao.add(user);
-        }
-
-        userService.upgradeLevels();
-
-        checkLevel(users.get(0), Level.BASIC);
-        checkLevel(users.get(1), Level.SILVER);
-        checkLevel(users.get(2), Level.GOLD);
-        checkLevel(users.get(3), Level.GOLD);
-        checkLevel(users.get(4), Level.GOLD);
-
-    }
-    private void checkLevel(User user, Level expectedLevel)
-    {
-        User userUpdate = userDao.get(user.getId());
-        Assertions.assertThat(userUpdate.getLevel()).isEqualTo(expectedLevel);
-    }
-
-     */
-
-    /*
-    @Test
-    public void upgradeLevels() throws SQLException {
-        userDao.deleteAll();
-
-        for (User user : users) {
-            userDao.add(user);
-        }
-
-        userService.setDataSource(dataSource);
-        userService.upgradeLevels();
-
-        checkLevelUpgraded(users.get(0), false);
-        checkLevelUpgraded(users.get(1), true);
-        checkLevelUpgraded(users.get(2), true);
-        checkLevelUpgraded(users.get(3), true);
-        checkLevelUpgraded(users.get(4), false);
-    }
 
 
-     */
     private void checkLevelUpgraded(User user, boolean upgraded) {
         User userUpdate = userDao.get(user.getId());
         if (upgraded) {

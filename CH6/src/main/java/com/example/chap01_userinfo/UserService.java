@@ -40,23 +40,24 @@ public class UserService implements UserLevelUpgradePolicy {
 
 
     public void upgradeLevels() {
-//        PlatformTransactionManager transactionManager = new DataSourceTransactionManager(dataSource);
-        //JDBC 트랜잭션 추상오브젝트 생성
         TransactionStatus status = this.transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
-            List<User> users = userDao.getAll();
-            for (User user : users) {
-                if (canUpgradeLevel(user)) {
-                    upgradeLevel(user);
-                }
-            }
+            upgradeLevelsInternal();
             this.transactionManager.commit(status);
+
         } catch (Exception e) {
             this.transactionManager.rollback(status);
             throw e;
         }
+    }
 
-
+    private void upgradeLevelsInternal() {
+        List<User> users = userDao.getAll();
+        for (User user : users) {
+            if (canUpgradeLevel(user)) {
+                upgradeLevel(user);
+            }
+        }
     }
 
 
