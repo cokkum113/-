@@ -99,7 +99,6 @@ public class UserServiceTest {
     public void upgradeAllOrNothing() {
         UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(userDao);
-        testUserService.setTransactionManager(transactionManager);
         testUserService.setDataSource(this.dataSource);
         testUserService.setMailSender(mailSender);
 
