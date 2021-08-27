@@ -92,53 +92,7 @@ public class UserServiceImpl implements UserService {
     public void setTransactionManager(DataSourceTransactionManager transactionManager) {
     }
 
-    static class MockUserDao implements UserDao {
 
-        private List<User> users;
-        private List<User> updated = new ArrayList<>();
-
-        private MockUserDao(List<User> users) {
-            this.users = users;
-        }
-
-        public List<User> getUpdated() {
-            return this.updated;
-        }
-
-        public List<User> getAll() {
-            return this.users;
-        }
-
-        public void update(User user) {
-            updated.add(user);
-        }
-
-        /*
-        테스트에 사용되지 않는 메소드들
-         */
-
-        @Override
-        public void add(User user) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public User get(String id) {
-            throw new UnsupportedOperationException();
-        }
-
-
-        @Override
-        public void deleteAll() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public int getCount() {
-            throw new UnsupportedOperationException();
-
-        }
-    }
 
 
 }
