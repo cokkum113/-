@@ -27,7 +27,10 @@ import static org.assertj.core.api.Assertions.fail;
 @ContextConfiguration(locations = "/application.xml")
 public class UserServiceTest {
     @Autowired
-    UserServiceImpl userService;
+    UserServiceImpl userServiceImpl;
+
+    @Autowired
+    UserService userService;
 
     @Autowired
     MailSender mailSender;
@@ -99,8 +102,11 @@ public class UserServiceTest {
     public void upgradeAllOrNothing() {
         UserServiceImpl testUserService = new TestUserService(users.get(3).getId());
         testUserService.setUserDao(userDao);
-        testUserService.setDataSource(this.dataSource);
         testUserService.setMailSender(mailSender);
+
+        UserServiceTx txUserService = new UserServiceTx();
+        txUserService.setTransactionManager(transactionManager);
+        txUserService.setUserService(testUserService);
 
         userDao.deleteAll();
         for (User user : users) {
@@ -108,7 +114,8 @@ public class UserServiceTest {
         }
 
         try {
-            testUserService.upgradeLevels();
+            txUserService.upgradeLevels();
+            //트랜잭션 기능을 분리한 오브젝트를 통해 예외 발생용 TestUserService가 호출되게 해야한다.
             fail("TestUserServiceException expected");
         } catch (TestUserService.TestUserServiceException e) {
         }
@@ -141,14 +148,14 @@ public class UserServiceTest {
     }
 
     @Test
-    @DirtiesContext //컨텍스트의 DI설정을 변경하라는 테스트라는 것을 알려줌
+    @DirtiesContext
     public void upgradeLevels() throws Exception {
         userDao.deleteAll();
         for (User user : users) {
             userDao.add(user);
         }
         MockMailSender mockMailSender = new MockMailSender();
-        userService.setMailSender(mockMailSender);
+        userServiceImpl.setMailSender(mockMailSender);
 
         userService.upgradeLevels();
 
