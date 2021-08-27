@@ -154,24 +154,31 @@ public class UserServiceTest {
         for (User user : users) {
             userDao.add(user);
         }
+        //DB 테스트 준비
+
+
         MockMailSender mockMailSender = new MockMailSender();
         userServiceImpl.setMailSender(mockMailSender);
+        //메일 발송 여부확인을 위해 목 오브젝트 DI
 
         userService.upgradeLevels();
+        //테스트 대상 실행
 
         checkLevelUpgraded(users.get(0), false);
         checkLevelUpgraded(users.get(1), true);
         checkLevelUpgraded(users.get(2), true);
         checkLevelUpgraded(users.get(3), true);
         checkLevelUpgraded(users.get(4), false);
+        //DB에 저장된 결과 확인
 
         List<String> request = mockMailSender.getRequests();
         assertThat(request.size()).isEqualTo(2);
         assertThat(request.get(0)).isEqualTo(users.get(1).getEmail());
         assertThat(request.get(1)).isEqualTo(users.get(3).getEmail());
-
-
-
+        //목 오브젝트를 이용한 결과 확인.
     }
+
+
+
 
 }
