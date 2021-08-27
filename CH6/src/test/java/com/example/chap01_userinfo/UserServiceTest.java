@@ -3,6 +3,7 @@ package com.example.chap01_userinfo;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.MailException;
 import org.springframework.mail.MailSender;
@@ -21,6 +22,7 @@ import static com.example.chap01_userinfo.UserServiceImpl.MIN_LOGOUT_FOR_SILVER;
 import static com.example.chap01_userinfo.UserServiceImpl.MIN_RECOMMEND_FOR_GOLD;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.mockito.Mockito.*;
 
 
 @RunWith(SpringRunner.class)
@@ -147,35 +149,41 @@ public class UserServiceTest {
 
     }
 
+
     @Test
     @DirtiesContext
     public void upgradeLevels() throws Exception {
-        userDao.deleteAll();
-        for (User user : users) {
-            userDao.add(user);
-        }
-        //DB 테스트 준비
+        UserServiceImpl userServiceImpl = new UserServiceImpl();
 
+        MockUserDao mockUserDao = new MockUserDao(this.users);
+        userServiceImpl.setUserDao(mockUserDao);
+        //목오브젝트로 만든 UserDao를 직접 DI해준다.
 
         MockMailSender mockMailSender = new MockMailSender();
         userServiceImpl.setMailSender(mockMailSender);
         //메일 발송 여부확인을 위해 목 오브젝트 DI
 
-        userService.upgradeLevels();
+        userServiceImpl.upgradeLevels();
         //테스트 대상 실행
 
-        checkLevelUpgraded(users.get(0), false);
-        checkLevelUpgraded(users.get(1), true);
-        checkLevelUpgraded(users.get(2), true);
-        checkLevelUpgraded(users.get(3), true);
-        checkLevelUpgraded(users.get(4), false);
-        //DB에 저장된 결과 확인
+        List<User> updated = mockUserDao.getUpdated();
+        assertThat(updated.size()).isEqualTo(3);
+        checkUserAndLevel(updated.get(0), "joytouch", Level.SILVER);
+        checkUserAndLevel(updated.get(1), "erwins", Level.GOLD);
+        //업데이트 횟수와 정보를 확인한다.
 
         List<String> request = mockMailSender.getRequests();
-        assertThat(request.size()).isEqualTo(2);
+        assertThat(request.size()).isEqualTo(3);
         assertThat(request.get(0)).isEqualTo(users.get(1).getEmail());
-        assertThat(request.get(1)).isEqualTo(users.get(3).getEmail());
+        assertThat(request.get(1)).isEqualTo(users.get(2).getEmail());
         //목 오브젝트를 이용한 결과 확인.
+    }
+
+    private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {
+        assertThat(updated.getId()).isEqualTo(expectedId);
+        assertThat(updated.getLevel()).isEqualTo(expectedLevel);
+
+
     }
 
     static class MockUserDao implements UserDao {
@@ -224,6 +232,40 @@ public class UserServiceTest {
             throw new UnsupportedOperationException();
 
         }
+
+    }
+
+    @Test
+    public void mockUpgradeLevels() throws Exception {
+        UserServiceImpl userServiceImpl = new UserServiceImpl();
+
+        UserDao mockUserDao = mock(UserDao.class);
+        when(mockUserDao.getAll()).thenReturn(this.users);
+        userServiceImpl.setUserDao(mockUserDao);
+
+
+        MailSender mockMailSender = mock(MailSender.class);
+        userServiceImpl.setMailSender(mockMailSender);
+
+        userServiceImpl.upgradeLevels();
+
+        verify(mockUserDao, times(2)).update(any(User.class));
+        verify(mockUserDao, times(2)).update(any(User.class));
+
+        verify(mockUserDao).update(users.get(1));
+        assertThat(users.get(1).getLevel()).isEqualTo(Level.SILVER);
+
+        verify(mockUserDao).update(users.get(3));
+        assertThat(users.get(3).getLevel()).isEqualTo(Level.GOLD);
+
+        ArgumentCaptor<SimpleMailMessage> mailMessage =
+                ArgumentCaptor.forClass(SimpleMailMessage.class);
+
+        verify(mockMailSender, times(2)).send(mailMessage.capture());
+
+        List<SimpleMailMessage> mailMessages = mailMessage.getAllValues();
+        assertThat(mailMessages.get(0).getTo()[0]).isEqualTo(users.get(1).getEmail());
+        assertThat(mailMessages.get(1).getTo()[0]).isEqualTo(users.get(3).getEmail());
 
 
     }
