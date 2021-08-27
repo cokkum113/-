@@ -2,19 +2,28 @@ package com.example.chap01_userinfo;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 
 public class UppercaseHandler implements InvocationHandler {
 
-    Hello target;
+    Object target;
 
-    public UppercaseHandler(Hello target) {
+    private UppercaseHandler(Object target) {
         this.target = target;
     }
+
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        String ret = (String) method.invoke(target, args);
-        //리플렉션 API를 이용해 타깃 호출
-        return ret.toUpperCase();
-        //부가기능
+        Object ret = method.invoke(target, args);
+        if (ret instanceof String) {
+            return ((String) ret).toUpperCase();
+        } else {
+            return ret;
+        }
     }
+
+    Hello proxiedHello = (Hello) Proxy.newProxyInstance(getClass().getClassLoader(),
+            new Class[]{Hello.class},
+            new UppercaseHandler(new HelloTarget()));
+
 }
